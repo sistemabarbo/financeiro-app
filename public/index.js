@@ -37,7 +37,7 @@ let transactionsVisible = false;
             editValor.value = parseFloat(transacao.valor).toFixed(2);
             editData.value = transacao.data;
             editFormaPagamento.value = transacao.forma_pagamento;
-            editNomeDoItem.value = transacao.NOME_DO_ITEM;
+            editNomeDoItem.value = transacao.nome_do_item;
         
             const modal = document.getElementById('editModal');
             modal.style.display = "block";
