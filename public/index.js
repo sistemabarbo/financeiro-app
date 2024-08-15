@@ -19,7 +19,7 @@ let transactionsVisible = false;
             document.getElementById('edit-valor').value = parseFloat(transacao.valor).toFixed(2);
             document.getElementById('edit-data').value = transacao.data;
             document.getElementById('edit-forma_pagamento').value = transacao.forma_pagamento;
-            document.getElementById('edit-nome_do_item').value = transacao.nome_do_item;
+            document.getElementById('edit-nome_do_item').value = transacao.NOME_DO_ITEM;
         
             const modal = document.getElementById('editModal');
             modal.style.display = "block";
