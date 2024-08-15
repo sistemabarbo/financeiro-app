@@ -14,16 +14,35 @@ let transactionsVisible = false;
         }
 
         function openEditModal(transacao) {
-            document.getElementById('edit-id').value = transacao.id;
-            document.getElementById('edit-tipo').value = transacao.tipo;
-            document.getElementById('edit-valor').value = parseFloat(transacao.valor).toFixed(2);
-            document.getElementById('edit-data').value = transacao.data;
-            document.getElementById('edit-forma_pagamento').value = transacao.forma_pagamento;
-            document.getElementById('edit-nome_do_item').value = transacao.NOME_DO_ITEM;
+            console.log('Opening modal with transaction:', transacao);
+        
+            const editId = document.getElementById('edit-id');
+            const editTipo = document.getElementById('edit-tipo');
+            const editValor = document.getElementById('edit-valor');
+            const editData = document.getElementById('edit-data');
+            const editFormaPagamento = document.getElementById('edit-forma_pagamento');
+            const editNomeDoItem = document.getElementById('edit-nome_do_item');
+        
+            console.log('Element references:', {
+                editId,
+                editTipo,
+                editValor,
+                editData,
+                editFormaPagamento,
+                editNomeDoItem,
+            });
+        
+            editId.value = transacao.id;
+            editTipo.value = transacao.tipo;
+            editValor.value = parseFloat(transacao.valor).toFixed(2);
+            editData.value = transacao.data;
+            editFormaPagamento.value = transacao.forma_pagamento;
+            editNomeDoItem.value = transacao.NOME_DO_ITEM;
         
             const modal = document.getElementById('editModal');
             modal.style.display = "block";
         }
+        
         
         function closeEditModal() {
             const modal = document.getElementById('editModal');
@@ -36,3 +55,4 @@ let transactionsVisible = false;
                 modal.style.display = "none";
             }
         }
+        
