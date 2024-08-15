@@ -239,7 +239,7 @@
                         <td><%= transacao.forma_pagamento %></td>
                         <td><%= transacao.NOME_DO_ITEM %></td>
                         <td>
-                            <button onclick="openEditModal('<%= JSON.stringify(transacao) %>')" class="edit"><i class="fas fa-edit"></i></button>
+                            <button onclick="openEditModal(<%= JSON.stringify(transacao) %>)" class="edit"><i class="fas fa-edit"></i></button>
                             <form id="delete-form-<%= transacao.id %>" action="/delete-transacao" method="POST" style="display:inline;">
                                 <input type="hidden" name="id" value="<%= transacao.id %>">
                                 <button type="submit" class="delete">Excluir</button>
