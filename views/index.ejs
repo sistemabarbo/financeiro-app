@@ -239,7 +239,9 @@
                         <td><%= transacao.forma_pagamento %></td>
                         <td><%= transacao.NOME_DO_ITEM %></td>
                         <td>
+                            <!-- <button onclick="openEditModal('<%= JSON.stringify(transacao) %>')" class="edit"><i class="fas fa-edit"></i></button> -->
                             <button onclick="openEditModal(<%= JSON.stringify(transacao) %>)" class="edit"><i class="fas fa-edit"></i></button>
+
                             <form id="delete-form-<%= transacao.id %>" action="/delete-transacao" method="POST" style="display:inline;">
                                 <input type="hidden" name="id" value="<%= transacao.id %>">
                                 <button type="submit" class="delete">Excluir</button>
@@ -258,7 +260,7 @@
     </div>
 
     <!-- Modal for Editing -->
-    <div id="editModal" class="modal">
+     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeEditModal()">&times;</span>
             <h2>Editar Transação</h2>
@@ -277,9 +279,10 @@
             </form>
         </div>
     </div> 
+     
 
-    <script src="/index.js">
-       /* let transactionsVisible = false;
+    <script>
+        let transactionsVisible = false;
 
         function toggleTransactions() {
             const list = document.getElementById('transaction-list');
@@ -295,16 +298,35 @@
         }
 
         function openEditModal(transacao) {
-            document.getElementById('edit-id').value = transacao.id;
-            document.getElementById('edit-tipo').value = transacao.tipo;
-            document.getElementById('edit-valor').value = parseFloat(transacao.valor).toFixed(2);
-            document.getElementById('edit-data').value = transacao.data;
-            document.getElementById('edit-forma_pagamento').value = transacao.forma_pagamento;
-            document.getElementById('edit-nome_do_item').value = transacao.nome_do_item;
+            console.log('Opening modal with transaction:', transacao);
+        
+            const editId = document.getElementById('edit-id');
+            const editTipo = document.getElementById('edit-tipo');
+            const editValor = document.getElementById('edit-valor');
+            const editData = document.getElementById('edit-data');
+            const editFormaPagamento = document.getElementById('edit-forma_pagamento');
+            const editNomeDoItem = document.getElementById('edit-nome_do_item');
+        
+            console.log('Element references:', {
+                editId,
+                editTipo,
+                editValor,
+                editData,
+                editFormaPagamento,
+                editNomeDoItem,
+            });
+        
+            editId.value = transacao.id;
+            editTipo.value = transacao.tipo;
+            editValor.value = parseFloat(transacao.valor).toFixed(2);
+            editData.value = transacao.data;
+            editFormaPagamento.value = transacao.forma_pagamento;
+            editNomeDoItem.value = transacao.NOME_DO_ITEM;
         
             const modal = document.getElementById('editModal');
             modal.style.display = "block";
         }
+        
         
         function closeEditModal() {
             const modal = document.getElementById('editModal');
@@ -316,7 +338,7 @@
             if (event.target === modal) {
                 modal.style.display = "none";
             }
-        }*/
+        }
         
     </script>
 </body>
