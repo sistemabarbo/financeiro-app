@@ -312,7 +312,7 @@ p {
      
 
     <script>
-      let transactionsVisible = false; // Variável para controlar a visibilidade das transações
+     let transactionsVisible = false; // Variável para controlar a visibilidade das transações
 let isAuthenticated = false; // Variável para controlar se o usuário já autenticou com a senha
 
 function toggleTransactions() {
@@ -334,12 +334,16 @@ function toggleTransactions() {
     const button = document.querySelector('.show-hide-btn');
 
     if (transactionsVisible) {
+        // Oculta as transações e recarrega a página
         list.classList.add('hidden');
         button.textContent = 'Mostrar Transações';
+        location.reload(); // Recarrega a página
     } else {
+        // Mostra as transações
         list.classList.remove('hidden');
         button.textContent = 'Esconder Transações';
     }
+
     transactionsVisible = !transactionsVisible;
 }
 
