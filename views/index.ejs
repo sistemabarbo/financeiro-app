@@ -312,20 +312,31 @@ p {
      
 
     <script>
-        let transactionsVisible = false;
+       let transactionsVisible = false; // Variável para controlar a visibilidade das transações
 
-        function toggleTransactions() {
-            const list = document.getElementById('transaction-list');
-            const button = document.querySelector('.show-hide-btn');
-            if (transactionsVisible) {
-                list.classList.add('hidden');
-                button.textContent = 'Mostrar Transações';
-            } else {
-                list.classList.remove('hidden');
-                button.textContent = 'Esconder Transações';
-            }
-            transactionsVisible = !transactionsVisible;
+function toggleTransactions() {
+    const password = prompt("Digite a senha para acessar as transações:");
+    
+    // Substitua 'senhaSegura' pela senha que você deseja usar
+    const correctPassword = 'senha';
+
+    if (password === correctPassword) {
+        const list = document.getElementById('transaction-list');
+        const button = document.querySelector('.show-hide-btn');
+
+        if (transactionsVisible) {
+            list.classList.add('hidden');
+            button.textContent = 'Mostrar Transações';
+        } else {
+            list.classList.remove('hidden');
+            button.textContent = 'Esconder Transações';
         }
+        transactionsVisible = !transactionsVisible;
+    } else {
+        alert("Senha incorreta. Acesso negado.");
+    }
+}
+
 
         function openEditModal(transacao) {
             console.log('Opening modal with transaction:', transacao);
