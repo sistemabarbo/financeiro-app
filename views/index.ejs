@@ -312,30 +312,37 @@ p {
      
 
     <script>
-       let transactionsVisible = false; // Variável para controlar a visibilidade das transações
+      let transactionsVisible = false; // Variável para controlar a visibilidade das transações
+let isAuthenticated = false; // Variável para controlar se o usuário já autenticou com a senha
 
 function toggleTransactions() {
-    const password = prompt("Digite a senha para acessar as transações:");
-    
-    // Substitua 'senhaSegura' pela senha que você deseja usar
-    const correctPassword = 'senha';
+    if (!transactionsVisible && !isAuthenticated) {
+        const password = prompt("Digite a senha para acessar as transações:");
+        
+        // Substitua 'senhaSegura' pela senha que você deseja usar
+        const correctPassword = 'senha';
 
-    if (password === correctPassword) {
-        const list = document.getElementById('transaction-list');
-        const button = document.querySelector('.show-hide-btn');
-
-        if (transactionsVisible) {
-            list.classList.add('hidden');
-            button.textContent = 'Mostrar Transações';
+        if (password === correctPassword) {
+            isAuthenticated = true;
         } else {
-            list.classList.remove('hidden');
-            button.textContent = 'Esconder Transações';
+            alert("Senha incorreta. Acesso negado.");
+            return; // Impede que o restante da função seja executado
         }
-        transactionsVisible = !transactionsVisible;
-    } else {
-        alert("Senha incorreta. Acesso negado.");
     }
+
+    const list = document.getElementById('transaction-list');
+    const button = document.querySelector('.show-hide-btn');
+
+    if (transactionsVisible) {
+        list.classList.add('hidden');
+        button.textContent = 'Mostrar Transações';
+    } else {
+        list.classList.remove('hidden');
+        button.textContent = 'Esconder Transações';
+    }
+    transactionsVisible = !transactionsVisible;
 }
+
 
 
         function openEditModal(transacao) {
