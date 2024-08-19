@@ -113,9 +113,11 @@ app.get('/edit-transacao/:id', (req, res) => {
 });
 
 app.post('/add-transacao', (req, res) => {
-    const { tipo, valor, data, forma_pagamento, nome_do_item } = req.body;
-    const query = 'INSERT INTO transacoes (tipo, valor, data, forma_pagamento, NOME_DO_ITEM, fechado) VALUES (?, ?, ?, ?, ?, FALSE)';
-    db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item], (err, result) => {
+    const { tipo, valor, forma_pagamento, nome_do_item } = req.body;
+    const query = 'INSERT INTO transacoes (tipo, valor, forma_pagamento, NOME_DO_ITEM, fechado, data) VALUES (?, ?, ?, ?, FALSE, CURRENT_DATE)';
+    
+    // Executando a consulta com os parâmetros corretos
+    db.query(query, [tipo, valor, forma_pagamento, nome_do_item], (err, result) => {
         if (err) throw err;
         res.redirect('/');
     });
