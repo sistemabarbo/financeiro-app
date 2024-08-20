@@ -218,7 +218,7 @@ p {
      style="width: 25px; height: 15px; vertical-align: middle;"  >
      Saída
  <label for="valor">Descrição:</label>
-            <input class="inputs" type="text" name="desc" id="desc" step="0.01" > <br></br>
+            <input class="inputs" type="text" name="Descricao" id="Descricao" step="0.01" > <br></br>
            <br></br></div>
             <label>Tipo:</label>
             <div class="radio">
@@ -263,6 +263,7 @@ p {
                     <th>Data</th>
                     <th>forma_pagamento</th>
                     <th>Nome do Item</th>
+                     <th>Descricao</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -280,6 +281,7 @@ p {
                         <td><%= transacao.data %></td>
                         <td><%= transacao.forma_pagamento %></td>
                         <td><%= transacao.NOME_DO_ITEM %></td>
+                        <td><%= transacao.Descricao %></td>
                         <td>
                             <!-- <button onclick="openEditModal('<%= JSON.stringify(transacao) %>')" class="edit"><i class="fas fa-edit"></i></button> -->
                             <button onclick="openEditModal(<%= JSON.stringify(transacao) %>)" class="edit"><i class="fas fa-edit"></i></button>
