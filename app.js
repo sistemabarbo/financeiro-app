@@ -44,6 +44,7 @@ app.get('/', (req, res) => {
             forma_pagamento,
             valor,
             NOME_DO_ITEM,
+            Descricao,
             DATE_FORMAT(data, '%Y-%m-%d') AS data,
             SUM(CASE WHEN tipo = 'entrada' AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada,
             SUM(CASE WHEN tipo = 'saida' AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida,
@@ -75,7 +76,7 @@ app.get('/', (req, res) => {
 
         const queryTransacoes = `
             SELECT
-                id, tipo, forma_pagamento, valor, NOME_DO_ITEM,
+                id, tipo, forma_pagamento, valor, NOME_DO_ITEM, Descricao,
                 DATE_FORMAT(data, '%Y-%m-%d') AS data
             FROM transacoes;
         `;
@@ -113,20 +114,20 @@ app.get('/edit-transacao/:id', (req, res) => {
 });
 
 app.post('/add-transacao', (req, res) => {
-    const { tipo, valor, forma_pagamento, nome_do_item } = req.body;
-    const query = 'INSERT INTO transacoes (tipo, valor, forma_pagamento, NOME_DO_ITEM, fechado, data) VALUES (?, ?, ?, ?, FALSE, CURRENT_DATE)';
+    const { tipo, valor, forma_pagamento, nome_do_item, Descricao } = req.body;
+    const query = 'INSERT INTO transacoes (tipo, valor, forma_pagamento, NOME_DO_ITEM, Descricao, fechado, data) VALUES (?, ?, ?, ?, ?, FALSE, CURRENT_DATE)';
     
     // Executando a consulta com os parâmetros corretos
-    db.query(query, [tipo, valor, forma_pagamento, nome_do_item], (err, result) => {
+    db.query(query, [tipo, valor, forma_pagamento, nome_do_item, Descricao], (err, result) => {
         if (err) throw err;
         res.redirect('/');
     });
 });
 
 app.post('/update-transacao', (req, res) => {
-    const { id, nome_do_item, tipo, valor, data, forma_pagamento } = req.body;
-    const query = 'UPDATE transacoes SET tipo = ?, valor = ?, data = ?, forma_pagamento = ?, NOME_DO_ITEM = ? WHERE id = ?';
-    db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item, id], (err, result) => {
+    const { id, nome_do_item, tipo, valor, data, forma_pagamento, Descricao } = req.body;
+    const query = 'UPDATE transacoes SET tipo = ?, valor = ?, data = ?, forma_pagamento = ?, NOME_DO_ITEM = ?, Descricao = ? WHERE id = ?';
+    db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item, Descricao, id], (err, result) => {
         if (err) throw err;
         res.redirect('/');
     });
@@ -182,6 +183,7 @@ app.get('/search', (req, res) => {
             forma_pagamento,
             valor,
             NOME_DO_ITEM,
+            Descricao
             DATE_FORMAT(data, '%Y-%m-%d') AS data
         FROM transacoes
         WHERE NOME_DO_ITEM LIKE ?;
