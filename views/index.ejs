@@ -111,7 +111,7 @@
             cursor: pointer;
         }
         .main{
-            background: orangered;
+            background: white;
         }
         /* Estiliza o container para que as divs fiquem lado a lado */
 .resumo-container {
@@ -196,7 +196,7 @@ p {
     
     <div class="salao"><a class="meta" href="/relatorio-mensal">Relatórios</a><a href="app.ejs">SALÃO</a></div>
     <div class="container">
-        <h1 class="main">ESPAÇO BBC ESTÉTICA AUTOMOTIVA</h1>
+        <h1 class="main">ESTÉTICA AUTOMOTIVA</h1>
         <form action="/add-transacao" method="POST">
             <label for="nome_do_item">Nome do Item:</label>
             <div class="radio"> <input type="radio" name="nome_do_item" id="pequeno" value="Pequeno" required
@@ -207,7 +207,19 @@ p {
      Médio
      <input type="radio" name="nome_do_item" id="grande" value="Grande" required
             style="width: 25px; height: 15px; vertical-align: middle;">
-     Grande<br></br></div>
+     Grande
+<input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
+     style="width: 25px; height: 15px; vertical-align: middle;"  >
+     Funcionário
+<input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
+     style="width: 25px; height: 15px; vertical-align: middle;"  >
+     Estacionamento
+<input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
+     style="width: 25px; height: 15px; vertical-align: middle;"  >
+     Saída
+ <label for="valor">Valor:</label>
+            <input class="inputs" type="text" name="valor" id="valor" step="0.01" required> <br></br>
+           <br></br></div>
             <label>Tipo:</label>
             <div class="radio">
     <input class="rad" type="radio" id="entrada" name="tipo" value="entrada">Entrada
