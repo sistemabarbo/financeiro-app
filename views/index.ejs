@@ -11,6 +11,7 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 20px;
+           margin-bottom: 50px;
         }
         .container {
             background-color: #fff;
@@ -19,6 +20,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             max-width: 800px;
             margin: auto;
+           margin-bottom: 30px;
         }
         h1, h2, h3 {
             color: #333;
@@ -253,7 +255,7 @@ p {
                             <div class="resumo"><p id="01" class="s16">Entrada do Dia: R$ <%= parseFloat(total_entrada_dia).toFixed(2) %></p></div>
                                 <div class="resumo"> <p id="01" class="s17">Saída do Dia: R$ - <%= parseFloat(total_saida_dia).toFixed(2) %></p></div>
         </div><br>
-        <button class="show-hide-btn" onclick="toggleTransactions()">Mostrar Transações</button>       
+        <button class="show-hide-btn" onclick="toggleTransactions()">Mostrar Transações</button><br>       
         
         
         <table id="transaction-list" class="transaction-list hidden">
