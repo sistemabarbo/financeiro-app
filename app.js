@@ -37,6 +37,7 @@ function getTransacaoComIcone(transacao) {
 }
 
 app.get('/', (req, res) => {
+    // Consulta principal
     const query = `
         SELECT
             id,
@@ -58,6 +59,20 @@ app.get('/', (req, res) => {
         FROM transacoes;
     `;
 
+    // Consulta para dados apenas do dia
+    const queryToday = `
+        SELECT
+            id,
+            tipo,
+            forma_pagamento,
+            valor,
+            NOME_DO_ITEM,
+            Descricao,
+            DATE_FORMAT(data, '%Y-%m-%d') AS data
+        FROM transacoes
+        WHERE DATE(data) = CURDATE();
+    `;
+
     db.query(query, (err, result) => {
         if (err) throw err;
 
@@ -74,27 +89,34 @@ app.get('/', (req, res) => {
         const total_entrada_mes = parseFloat(result[0].total_entrada_mes) || 0;
         const total_saida_mes = parseFloat(result[0].total_saida_mes) || 0;
 
-        const queryTransacoes = `
-            SELECT
-                id, tipo, forma_pagamento, valor, NOME_DO_ITEM, Descricao,
-                DATE_FORMAT(data, '%Y-%m-%d') AS data
-            FROM transacoes;
-        `;
-
-        db.query(queryTransacoes, (err, transacoes) => {
+        // Executa a consulta para dados apenas do dia
+        db.query(queryToday, (err, transacoesDoDia) => {
             if (err) throw err;
-            res.render('index', {
-                saldo: saldo,
-                total_entrada: total_entrada,
-                total_saida: total_saida,
-                total_entrada_dia: total_entrada_dia,
-                total_saida_dia: total_saida_dia,
-                total_entrada_semana: total_entrada_semana,
-                total_saida_semana: total_saida_semana,
-                total_entrada_mes: total_entrada_mes,
-                total_saida_mes: total_saida_mes,
-                transacoes: transacoes,
-                getTransacaoComIcone: getTransacaoComIcone
+
+            // Executa a consulta principal para todos os dados
+            const queryTransacoes = `
+                SELECT
+                    id, tipo, forma_pagamento, valor, NOME_DO_ITEM, Descricao,
+                    DATE_FORMAT(data, '%Y-%m-%d') AS data
+                FROM transacoes;
+            `;
+
+            db.query(queryTransacoes, (err, transacoes) => {
+                if (err) throw err;
+                res.render('index', {
+                    saldo: saldo,
+                    total_entrada: total_entrada,
+                    total_saida: total_saida,
+                    total_entrada_dia: total_entrada_dia,
+                    total_saida_dia: total_saida_dia,
+                    total_entrada_semana: total_entrada_semana,
+                    total_saida_semana: total_saida_semana,
+                    total_entrada_mes: total_entrada_mes,
+                    total_saida_mes: total_saida_mes,
+                    transacoes: transacoes,
+                    transacoesDoDia: transacoesDoDia, // Dados apenas do dia
+                    getTransacaoComIcone: getTransacaoComIcone
+                });
             });
         });
     });
