@@ -192,7 +192,23 @@ p {
         .inputs{
             height: 25px;
         }
-   
+   .table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.table-container table {
+    width: 100%;
+    min-width: 600px; /* or any minimum width you prefer */
+    border-collapse: collapse;
+}
+
+.transaction-list th, .transaction-list td {
+    padding: 10px;
+    text-align: left;
+    white-space: nowrap; /* Prevent text wrapping for better readability */
+}
+
 
     </style>
 </head>
@@ -258,7 +274,7 @@ p {
                                 <div class="resumo"> <p id="01" class="s17">Saída do Dia: R$ - <%= parseFloat(total_saida_dia).toFixed(2) %></p></div>
         </div><br>
         <button class="show-hide-btn" onclick="toggleTransactions()">Mostrar Transações</button><br>       
-        
+ <div class="table-container">       
         
         <table id="transaction-list" class="transaction-list hidden">
             <thead>
@@ -302,7 +318,7 @@ p {
                 <% } %>
             </tbody>
         </table>
-        
+        </div>
         
         <form action="/fechar-caixa" method="POST">
             <button type="submit">Fechar Caixa</button>
