@@ -96,9 +96,16 @@ app.get('/', (req, res) => {
             // Executa a consulta principal para todos os dados
             const queryTransacoes = `
                 SELECT
-                    id, tipo, forma_pagamento, valor, NOME_DO_ITEM, Descricao,
-                    DATE_FORMAT(data, '%Y-%m-%d') AS data
-                FROM transacoes;
+    id,
+    tipo,
+    forma_pagamento,
+    valor,
+    NOME_DO_ITEM,
+    Descricao,
+    DATE_FORMAT(data, '%Y-%m-%d') AS data
+FROM transacoes
+WHERE DATE(data) = CURDATE()
+
             `;
 
             db.query(queryTransacoes, (err, transacoes) => {
