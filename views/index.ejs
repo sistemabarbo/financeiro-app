@@ -331,25 +331,35 @@ p {
             <span class="close" onclick="closeEditModal()">&times</span>
             <h2>Editar Transação</h2>
             <form id="editForm" action="/update-transacao" method="POST">
-                <input type="hidden" name="id" id="edit-id">
-<select name="tipo" id="edit-tipo" required>
-    <option value="entrada">Entrada</option>
-    <option value="saida">Saída</option>
-</select><br></br>
-<input type="number" name="valor" id="edit-valor" step="0.01" required><br></br>
-<input type="date" name="data" id="edit-data" required><br></br>
-<input type="text" name="forma_pagamento" id="edit-forma_pagamento" required><br></br>
-<select name="forma_pagamento" id="edit-forma_pagamento" required>
-    <option value="pix">Pix</option>
-    <option value="cartao">Cartão</option>
-    <option value="dinheiro">Dinheiro</option>
-</select><br></br>
-<input type="text" name="nome_do_item" id="edit-nome_do_item" required><br></br>
-<label for="valor">Descrição:</label>
-            <input class="inputs" type="text" name="Descricao" id="Descricao" step="0.01" > <br></br>
-         
-                <button type="submit">Atualizar</button>
-            </form>
+            <input type="hidden" name="id" id="edit-id">
+
+            <label for="edit-tipo">Tipo:</label>
+            <select name="tipo" id="edit-tipo" required>
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+            </select><br><br>
+
+            <label for="edit-valor">Valor:</label>
+            <input type="number" name="valor" id="edit-valor" step="0.01" required><br><br>
+
+            <label for="edit-data">Data:</label>
+            <input type="date" name="data" id="edit-data" required><br><br>
+
+            <label for="edit-forma_pagamento">Forma de Pagamento:</label>
+            <select name="forma_pagamento" id="edit-forma_pagamento" required>
+                <option value="pix">Pix</option>
+                <option value="cartao">Cartão</option>
+                <option value="dinheiro">Dinheiro</option>
+            </select><br><br>
+
+            <label for="edit-nome_do_item">Nome do Item:</label>
+            <input type="text" name="nome_do_item" id="edit-nome_do_item" required><br><br>
+
+            <label for="Descricao">Descrição:</label>
+            <input type="text" name="Descricao" id="Descricao"><br><br>
+
+            <button type="submit">Atualizar</button>
+        </form>
         </div>
     </div> 
      
@@ -392,48 +402,52 @@ function toggleTransactions() {
 
 
 
-        function openEditModal(transacao) {
-            console.log('Opening modal with transaction:', transacao);
-        
-            const editId = document.getElementById('edit-id');
-            const editTipo = document.getElementById('edit-tipo');
-            const editValor = document.getElementById('edit-valor');
-            const editData = document.getElementById('edit-data');
-            const editFormaPagamento = document.getElementById('edit-forma_pagamento');
-            const editNomeDoItem = document.getElementById('edit-nome_do_item');
-        
-            console.log('Element references:', {
-                editId,
-                editTipo,
-                editValor,
-                editData,
-                editFormaPagamento,
-                editNomeDoItem,
-            });
-        
-            editId.value = transacao.id;
-            editTipo.value = transacao.tipo;
-            editValor.value = parseFloat(transacao.valor).toFixed(2);
-            editData.value = transacao.data;
-            editFormaPagamento.value = transacao.forma_pagamento;
-            editNomeDoItem.value = transacao.NOME_DO_ITEM;
-        
-            const modal = document.getElementById('editModal');
-            modal.style.display = "block";
-        }
-        
-        
-        function closeEditModal() {
-            const modal = document.getElementById('editModal');
-            modal.style.display = "none";
-        }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        }
+      function openEditModal(transacao) {
+    console.log('Opening modal with transaction:', transacao);
+
+    const editId = document.getElementById('edit-id');
+    const editTipo = document.getElementById('edit-tipo');
+    const editValor = document.getElementById('edit-valor');
+    const editData = document.getElementById('edit-data');
+    const editFormaPagamento = document.getElementById('edit-forma_pagamento');
+    const editNomeDoItem = document.getElementById('edit-nome_do_item');
+    const editDescricao = document.getElementById('Descricao');
+
+    console.log('Element references:', {
+        editId,
+        editTipo,
+        editValor,
+        editData,
+        editFormaPagamento,
+        editNomeDoItem,
+        editDescricao
+    });
+
+    // Popula os campos do formulário com os dados da transação
+    editId.value = transacao.id;
+    editTipo.value = transacao.tipo;
+    editValor.value = parseFloat(transacao.valor).toFixed(2);
+    editData.value = transacao.data;
+    editFormaPagamento.value = transacao.forma_pagamento;
+    editNomeDoItem.value = transacao.nome_do_item;
+    editDescricao.value = transacao.Descricao || ''; // Preenche com valor vazio se Descricao for null
+
+    const modal = document.getElementById('editModal');
+    modal.style.display = "block";
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('editModal');
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
         
     </script>
 </body>
