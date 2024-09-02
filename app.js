@@ -27,7 +27,7 @@ db.connect(err => {
 });
 function errorHandler(err, req, res, next) {
     console.error('Erro:', err);
-    res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
+    res.status(500).json({ error: 'Ocorreu um erro devido a instabilidade no servidor tente novamente mais tarde, isso pode ser rápido de 5 à 20 minutos devido a grande demanda do servidor, obrigado por compreender.' });
 }
 function getTransacaoComIcone(transacao) {
     let icon;
