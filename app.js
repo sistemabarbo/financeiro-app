@@ -25,7 +25,10 @@ db.connect(err => {
     if (err) throw err;
     console.log('Conectado ao banco de dados.');
 });
-
+function errorHandler(err, req, res, next) {
+    console.error('Erro:', err);
+    res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
+}
 function getTransacaoComIcone(transacao) {
     let icon;
     if (transacao.tipo === 'entrada') {
@@ -74,7 +77,7 @@ app.get('/', (req, res) => {
     `;
 
     db.query(query, (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
 
         const saldo = parseFloat(result[0].saldo) || 0;
         const total_entrada = parseFloat(result[0].total_entrada) || 0;
@@ -91,7 +94,7 @@ app.get('/', (req, res) => {
 
         // Executa a consulta para dados apenas do dia
         db.query(queryToday, (err, transacoesDoDia) => {
-            if (err) throw err;
+            if (err) return next(err);
 
             // Executa a consulta principal para todos os dados
             const queryTransacoes = `
@@ -109,7 +112,7 @@ WHERE DATE(data) = CURDATE()
             `;
 
             db.query(queryTransacoes, (err, transacoes) => {
-                if (err) throw err;
+                if (err) return next(err);
                 res.render('index', {
                     saldo: saldo,
                     total_entrada: total_entrada,
@@ -133,7 +136,7 @@ app.get('/edit-transacao/:id', (req, res) => {
     const { id } = req.params;
     const query = 'SELECT * FROM transacoes WHERE id = ?';
     db.query(query, [id], (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
         if (result.length > 0) {
             res.render('edit', { transacao: result[0] });
         } else {
@@ -148,7 +151,7 @@ app.post('/add-transacao', (req, res) => {
     
     // Executando a consulta com os parâmetros corretos
     db.query(query, [tipo, valor, forma_pagamento, nome_do_item, Descricao], (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
         res.redirect('/');
     });
 });
@@ -157,7 +160,7 @@ app.post('/update-transacao', (req, res) => {
     const { id, nome_do_item, tipo, valor, data, forma_pagamento, Descricao } = req.body;
     const query = 'UPDATE transacoes SET tipo = ?, valor = ?, data = ?, forma_pagamento = ?, NOME_DO_ITEM = ?, Descricao = ? WHERE id = ?';
     db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item, Descricao, id], (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
         res.redirect('/');
     });
 });
@@ -166,7 +169,7 @@ app.post('/delete-transacao', (req, res) => {
     const { id } = req.body;
     const query = 'DELETE FROM transacoes WHERE id = ?';
     db.query(query, [id], (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
         res.redirect('/');
     });
 });
@@ -198,7 +201,7 @@ app.get('/', async (req, res) => {
 app.post('/fechar-caixa', (req, res) => {
     const query = 'UPDATE transacoes SET fechado = TRUE WHERE fechado = FALSE';
     db.query(query, (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
         res.redirect('/');
     });
 });
@@ -245,7 +248,7 @@ app.get('/relatorio-mensal', (req, res) => {
     `;
 
     db.query(query, [mes, ano], (err, result) => {
-        if (err) throw err;
+        if (err) return next(err);
 
         const total_entrada_mes = parseFloat(result[0].total_entrada_mes) || 0;
         const total_saida_mes = parseFloat(result[0].total_saida_mes) || 0;
@@ -260,7 +263,7 @@ app.get('/relatorio-mensal', (req, res) => {
         });
     });
 });
-
+app.use(errorHandler);
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
 });
