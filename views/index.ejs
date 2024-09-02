@@ -429,7 +429,7 @@ function toggleTransactions() {
     editValor.value = parseFloat(transacao.valor).toFixed(2);
     editData.value = transacao.data;
     editFormaPagamento.value = transacao.forma_pagamento;
-    editNomeDoItem.value = transacao.nome_do_item;
+    editNomeDoItem.value = transacao.NOME_DO_ITEM;
     editDescricao.value = transacao.Descricao || ''; // Preenche com valor vazio se Descricao for null
 
     const modal = document.getElementById('editModal');
