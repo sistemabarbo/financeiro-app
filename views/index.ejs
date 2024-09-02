@@ -339,8 +339,15 @@ p {
 <input type="number" name="valor" id="edit-valor" step="0.01" required><br></br>
 <input type="date" name="data" id="edit-data" required><br></br>
 <input type="text" name="forma_pagamento" id="edit-forma_pagamento" required><br></br>
+<select name="forma_pagamento" id="edit-forma_pagamento" required>
+    <option value="pix">Pix</option>
+    <option value="cartao">Cartão</option>
+    <option value="dinheiro">Dinheiro</option>
+</select><br></br>
 <input type="text" name="nome_do_item" id="edit-nome_do_item" required><br></br>
-
+<label for="valor">Descrição:</label>
+            <input value="Descricao" class="inputs" type="text" name="Descricao" id="Descricao" step="0.01" > <br></br>
+         
                 <button type="submit">Atualizar</button>
             </form>
         </div>
