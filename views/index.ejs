@@ -355,8 +355,8 @@ p {
             <label for="edit-nome_do_item">Nome do Item:</label>
             <input type="text" name="nome_do_item" id="edit-nome_do_item" required><br><br>
 
-            <label for="Descricao">Descrição:</label>
-            <input type="text" name="Descricaos" id="Descricaos"><br><br>
+            <label for="editDescricaoModal">Descrição:</label>
+            <input type="text" name="Descricao" id="editDescricaoModal"><br><br>
 
             <button type="submit">Atualizar</button>
         </form>
@@ -411,7 +411,7 @@ function toggleTransactions() {
     const editData = document.getElementById('edit-data');
     const editFormaPagamento = document.getElementById('edit-forma_pagamento');
     const editNomeDoItem = document.getElementById('edit-nome_do_item');
-    const editDescricao = document.getElementById('Descricaos');
+    const editDescricao = document.getElementById('editDescricaoModal');
 
     console.log('Element references:', {
         editId,
