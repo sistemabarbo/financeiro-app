@@ -302,8 +302,8 @@ p {
                         <td><%= transacao.valor %></td>
                         <td><%= transacao.data %></td>
                         <td><%= transacao.forma_pagamento %></td>
-                        <td><%= transacao.NOME_DO_ITEM %></td>
-                        <td><%= transacao.Descricao %></td>
+                        <td><%= transacao.nome_do_item %></td>
+                        <td><%= transacao.descricao %></td>
                         <td>
                             <!-- <button onclick="openEditModal('<%= JSON.stringify(transacao) %>')" class="edit"><i class="fas fa-edit"></i></button> -->
                             <button onclick="openEditModal(<%= JSON.stringify(transacao) %>)" class="edit"><i class="fas fa-edit"></i></button>
@@ -356,7 +356,7 @@ p {
             <input type="text" name="nome_do_item" id="edit-nome_do_item" required><br><br>
 
             <label for="editDescricaoModal">Descrição:</label>
-            <input type="text" name="Descricao" id="editDescricaoModal"><br><br>
+            <input type="text" name="descricao" id="editDescricaoModal"><br><br>
 
             <button type="submit">Atualizar</button>
         </form>
@@ -429,8 +429,8 @@ function toggleTransactions() {
     editValor.value = parseFloat(transacao.valor).toFixed(2);
     editData.value = transacao.data;
     editFormaPagamento.value = transacao.forma_pagamento;
-    editNomeDoItem.value = transacao.NOME_DO_ITEM;
-    editDescricao.value = transacao.Descricao; // Preenche com valor vazio se Descricao for null
+    editNomeDoItem.value = transacao.nome_do_item;
+    editDescricao.value = transacao.descricao; // Preenche com valor vazio se Descricao for null
 
     const modal = document.getElementById('editModal');
     modal.style.display = "block";
