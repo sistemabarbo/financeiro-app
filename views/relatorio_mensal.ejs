@@ -41,22 +41,32 @@
         font-size: 15px;
         cursor: pointer;
     }
-    .table-container {
-        overflow-x: auto;
-        width: 100%;
-    }
-    
-    .table-container table {
-        width: 100%;
-        min-width: 600px; /* or any minimum width you prefer */
-        border-collapse: collapse;
-    }
-    
-    .transaction-list th, .transaction-list td {
-        padding: 10px;
-        text-align: left;
-        white-space: nowrap; /* Prevent text wrapping for better readability */
-    }
+   .table-container {
+    overflow-x: auto;  /* Adiciona rolagem horizontal se necessário */
+    width: 100%;       /* O container ocupa 100% da largura disponível */
+}
+
+.table-container table {
+    width: 100%;       /* A tabela ocupa 100% da largura do container */
+    min-width: 600px;  /* Largura mínima da tabela */
+    border-collapse: collapse; /* Colapsa bordas da tabela */
+}
+
+.transaction-list th, .transaction-list td {
+    padding: 10px;               /* Espaçamento interno das células */
+    text-align: left;            /* Alinhamento do texto à esquerda */
+    white-space: nowrap;         /* Impede a quebra de linha dentro das células */
+}
+
+.transaction-list th {
+    background-color: #f2f2f2; /* Cor de fundo para cabeçalhos */
+    border-bottom: 2px solid #ddd; /* Borda inferior nos cabeçalhos */
+}
+
+.transaction-list td {
+    border-bottom: 1px solid #ddd; /* Borda inferior nas células */
+}
+
 </style>
 <body>
     <form class="relatorio" action="/relatorio-mensal" method="get">
