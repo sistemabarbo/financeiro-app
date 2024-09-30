@@ -1,34 +1,38 @@
 const express = require('express');
 const path = require('path');
-const mysql = require('mysql2');
+const pg = require('pg');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+require('dotenv').config(); 
 const app = express();
-
+app.use(cors());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Serve static files from the public folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+const port = 3000;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cors());
+const config = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT || 5432,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+};
 
-const db = mysql.createConnection({
-    host: 'b9lsqlxrc1wrcggnqosi-mysql.services.clever-cloud.com',
-    user: 'ugcnyroeqou4hr6n',
-    password: 'fmIducXVC9LOVxi6KgPB',
-    database: 'b9lsqlxrc1wrcggnqosi'
-});
+const db = new pg.Client(config);
 
 db.connect(err => {
-    if (err) throw err;
-    console.log('Conectado ao banco de dados.');
+    if (err) {
+        console.error('Error connecting to the database:', err.stack);
+        return;
+    }
+    console.log('Connected to the database');
+   // queryDatabase();
 });
-function errorHandler(err, req, res, next) {
-    console.error('Erro:', err);
-    res.status(500).json({ error: 'Ocorreu um erro devido a instabilidade no servidor tente novamente mais tarde, isso pode ser rápido de 5 à 20 minutos devido a grande demanda do servidor, obrigado por compreender.' });
-}
+
 function getTransacaoComIcone(transacao) {
     let icon;
     if (transacao.tipo === 'entrada') {
@@ -42,80 +46,84 @@ function getTransacaoComIcone(transacao) {
 app.get('/', (req, res) => {
     // Consulta principal
     const query = `
-        SELECT
-            id,
-            tipo,
-            forma_pagamento,
-            valor,
-            NOME_DO_ITEM,
-            Descricao,
-            DATE_FORMAT(data, '%Y-%m-%d') AS data,
-            SUM(CASE WHEN tipo = 'entrada' AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada,
-            SUM(CASE WHEN tipo = 'saida' AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida,
-            (SUM(CASE WHEN tipo = 'entrada' AND fechado = FALSE THEN valor ELSE 0 END) - SUM(CASE WHEN tipo = 'saida' AND fechado = FALSE THEN valor ELSE 0 END)) AS saldo,
-            SUM(CASE WHEN tipo = 'entrada' AND DATE(data) = CURDATE() AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada_dia,
-            SUM(CASE WHEN tipo = 'saida' AND DATE(data) = CURDATE() AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida_dia,
-            SUM(CASE WHEN tipo = 'entrada' AND WEEK(data) = WEEK(CURDATE()) AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada_semana,
-            SUM(CASE WHEN tipo = 'saida' AND WEEK(data) = WEEK(CURDATE()) AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida_semana,
-            SUM(CASE WHEN tipo = 'entrada' AND MONTH(data) = MONTH(CURDATE()) AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada_mes,
-            SUM(CASE WHEN tipo = 'saida' AND MONTH(data) = MONTH(CURDATE()) AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida_mes
-        FROM transacoes;
+        SELECT 
+    SUM(CASE WHEN tipo = 'entrada' AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada,
+    SUM(CASE WHEN tipo = 'saida' AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida,
+    (SUM(CASE WHEN tipo = 'entrada' AND fechado = FALSE THEN valor ELSE 0 END) - 
+     SUM(CASE WHEN tipo = 'saida' AND fechado = FALSE THEN valor ELSE 0 END)) AS saldo,
+    SUM(CASE WHEN tipo = 'entrada' AND data::date = CURRENT_DATE AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada_dia,
+    SUM(CASE WHEN tipo = 'saida' AND data::date = CURRENT_DATE AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida_dia,
+    SUM(CASE WHEN tipo = 'entrada' AND date_trunc('week', data) = date_trunc('week', CURRENT_DATE) AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada_semana,
+    SUM(CASE WHEN tipo = 'saida' AND date_trunc('week', data) = date_trunc('week', CURRENT_DATE) AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida_semana,
+    SUM(CASE WHEN tipo = 'entrada' AND date_part('month', data) = date_part('month', CURRENT_DATE) AND fechado = FALSE THEN valor ELSE 0 END) AS total_entrada_mes,
+    SUM(CASE WHEN tipo = 'saida' AND date_part('month', data) = date_part('month', CURRENT_DATE) AND fechado = FALSE THEN valor ELSE 0 END) AS total_saida_mes
+FROM transacoes;
     `;
 
     // Consulta para dados apenas do dia
     const queryToday = `
-        SELECT
-            id,
-            tipo,
-            forma_pagamento,
-            valor,
-            NOME_DO_ITEM,
-            Descricao,
-            DATE_FORMAT(data, '%Y-%m-%d') AS data
-        FROM transacoes
-        WHERE DATE(data) = CURDATE();
+         SELECT
+                id,
+                tipo,
+                forma_pagamento,
+                valor,
+                "NOME_DO_ITEM",
+                Descricao,
+                to_char(data, 'YYYY-MM-DD') AS data
+            FROM transacoes
+            WHERE data::date = CURRENT_DATE;
     `;
 
     db.query(query, (err, result) => {
-        if (err) return next(err);
+        if (err) {
+            console.error('Erro na consulta:', err);
+            return;
+        }
+        
+        if (result.rows.length === 0) {
+            console.error('Nenhum resultado encontrado');
+            return;
+        }
+        
+       // Acessando as linhas retornadas corretamente
+    const saldo = parseFloat(result.rows[0].saldo) || 0;
+    console.log('Saldo:', saldo);
+    const total_entrada = parseFloat(result.rows[0].total_entrada) || 0;
+    const total_saida = parseFloat(result.rows[0].total_saida) || 0;
 
-        const saldo = parseFloat(result[0].saldo) || 0;
-        const total_entrada = parseFloat(result[0].total_entrada) || 0;
-        const total_saida = parseFloat(result[0].total_saida) || 0;
+    const total_entrada_dia = parseFloat(result.rows[0].total_entrada_dia) || 0;
+    const total_saida_dia = parseFloat(result.rows[0].total_saida_dia) || 0;
 
-        const total_entrada_dia = parseFloat(result[0].total_entrada_dia) || 0;
-        const total_saida_dia = parseFloat(result[0].total_saida_dia) || 0;
+    const total_entrada_semana = parseFloat(result.rows[0].total_entrada_semana) || 0;
+    const total_saida_semana = parseFloat(result.rows[0].total_saida_semana) || 0;
 
-        const total_entrada_semana = parseFloat(result[0].total_entrada_semana) || 0;
-        const total_saida_semana = parseFloat(result[0].total_saida_semana) || 0;
-
-        const total_entrada_mes = parseFloat(result[0].total_entrada_mes) || 0;
-        const total_saida_mes = parseFloat(result[0].total_saida_mes) || 0;
-
+    const total_entrada_mes = parseFloat(result.rows[0].total_entrada_mes) || 0;
+    const total_saida_mes = parseFloat(result.rows[0].total_saida_mes) || 0;
+    
         // Executa a consulta para dados apenas do dia
         db.query(queryToday, (err, transacoesDoDia) => {
-            if (err) return next(err);
+          //  if (err) return next(err);
 
             // Executa a consulta principal para todos os dados
             const queryTransacoes = `
-                SELECT
-    id,
-    tipo,
-    forma_pagamento,
-    valor,
-    NOME_DO_ITEM,
-    Descricao,
-    DATE_FORMAT(data, '%Y-%m-%d') AS data
-FROM transacoes
-WHERE DATE(data) = CURDATE()
+                 SELECT
+                id,
+                tipo,
+                forma_pagamento,
+                valor,
+                "NOME_DO_ITEM",
+                Descricao,
+                to_char(data, 'YYYY-MM-DD') AS data
+            FROM transacoes
+            WHERE data::date = CURRENT_DATE;
 
             `;
 
             db.query(queryTransacoes, (err, transacoes) => {
-                if (err) return next(err);
+              //  if (err) return next(err);
                 res.render('index', {
                     saldo: saldo,
-                    total_entrada: total_entrada,
+                   total_entrada: total_entrada,
                     total_saida: total_saida,
                     total_entrada_dia: total_entrada_dia,
                     total_saida_dia: total_saida_dia,
@@ -123,8 +131,8 @@ WHERE DATE(data) = CURDATE()
                     total_saida_semana: total_saida_semana,
                     total_entrada_mes: total_entrada_mes,
                     total_saida_mes: total_saida_mes,
-                    transacoes: transacoes,
-                    transacoesDoDia: transacoesDoDia, // Dados apenas do dia
+                    transacoes: transacoes ? transacoes.rows : [],
+                   // transacoesDoDia: transacoesDoDia.rows, // Dados apenas do dia
                     getTransacaoComIcone: getTransacaoComIcone
                 });
             });
@@ -134,9 +142,9 @@ WHERE DATE(data) = CURDATE()
 
 app.get('/edit-transacao/:id', (req, res) => {
     const { id } = req.params;
-    const query = 'SELECT * FROM transacoes WHERE id = ?';
+    const query = 'SELECT * FROM transacoes WHERE id = $1';
     db.query(query, [id], (err, result) => {
-        if (err) return next(err);
+       // if (err) return next(err);
         if (result.length > 0) {
             res.render('edit', { transacao: result[0] });
         } else {
@@ -146,30 +154,54 @@ app.get('/edit-transacao/:id', (req, res) => {
 });
 
 app.post('/add-transacao', (req, res) => {
-    const { tipo, valor, forma_pagamento, nome_do_item, Descricao } = req.body;
-    const query = 'INSERT INTO transacoes (tipo, valor, forma_pagamento, NOME_DO_ITEM, Descricao, fechado, data) VALUES (?, ?, ?, ?, ?, FALSE, CURRENT_DATE)';
-    
-    // Executando a consulta com os parâmetros corretos
-    db.query(query, [tipo, valor, forma_pagamento, nome_do_item, Descricao], (err, result) => {
-        if (err) return next(err);
-        res.redirect('/');
-    });
+    try {
+        console.log("Dados recebidos:", req.body); // Verifique o que está sendo recebido
+        const { tipo, valor, forma_pagamento, nome_do_item, descricao } = req.body;
+
+        const valorNum = parseFloat(valor);
+        const query = `
+            INSERT INTO transacoes (tipo, valor, forma_pagamento, nome_do_item, descricao, fechado, data)
+            VALUES ($1, $2, $3, $4, $5, FALSE, CURRENT_DATE);
+        `;
+
+        console.log("Consulta:", query);
+        // Executando a consulta com os parâmetros corretos
+        db.query(query, [tipo, valorNum, forma_pagamento, nome_do_item, descricao], (err, result) => {
+            console.log("Executando consulta..."); // Log adicionado
+            if (err) {
+                console.error("Erro ao executar a consulta:", err);
+                return res.status(500).send('Erro ao inserir a transação');
+            }
+            console.log("Consulta executada com sucesso:", result);
+            res.redirect('/');
+        });
+    } catch (e) {
+        console.error("Erro ao adicionar transação:", e);
+        res.status(500).send('Erro ao adicionar a transação');
+    }
 });
+
+
+
 
 app.post('/update-transacao', (req, res) => {
     const { id, nome_do_item, tipo, valor, data, forma_pagamento, Descricao } = req.body;
-    const query = 'UPDATE transacoes SET tipo = ?, valor = ?, data = ?, forma_pagamento = ?, NOME_DO_ITEM = ?, Descricao = ? WHERE id = ?';
+    const query = `
+        UPDATE transacoes
+        SET tipo = $1, valor = $2, data = $3, forma_pagamento = $4, "NOME_DO_ITEM" = $5, Descricao = $6
+        WHERE id = $7;
+    `;
     db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item, Descricao, id], (err, result) => {
-        if (err) return next(err);
+       // if (err) return next(err);
         res.redirect('/');
     });
 });
 
 app.post('/delete-transacao', (req, res) => {
     const { id } = req.body;
-    const query = 'DELETE FROM transacoes WHERE id = ?';
+    const query = 'DELETE FROM transacoes WHERE id = $1';
     db.query(query, [id], (err, result) => {
-        if (err) return next(err);
+      //  if (err) return next(err);
         res.redirect('/');
     });
 });
@@ -201,7 +233,7 @@ app.get('/', async (req, res) => {
 app.post('/fechar-caixa', (req, res) => {
     const query = 'UPDATE transacoes SET fechado = TRUE WHERE fechado = FALSE';
     db.query(query, (err, result) => {
-        if (err) return next(err);
+       // if (err) return next(err);
         res.redirect('/');
     });
 });
@@ -210,15 +242,16 @@ app.get('/search', (req, res) => {
     const { nome_do_item } = req.query;
     const query = `
         SELECT
-            id,
-            tipo,
-            forma_pagamento,
-            valor,
-            NOME_DO_ITEM,
-            Descricao
-            DATE_FORMAT(data, '%Y-%m-%d') AS data
-        FROM transacoes
-        WHERE NOME_DO_ITEM LIKE ?;
+    id,
+    tipo,
+    forma_pagamento,
+    valor,
+    "NOME_DO_ITEM",
+    Descricao,
+    to_char(data, 'YYYY-MM-DD') AS data
+FROM transacoes
+WHERE "NOME_DO_ITEM" ILIKE $1;
+
     `;
 
     db.query(query, [`%${nome_do_item}%`], (err, transacoes) => {
@@ -240,15 +273,16 @@ app.get('/relatorio-mensal', (req, res) => {
     // Consulta SQL para somar as entradas e saídas do mês especificado
     const query = `
         SELECT
-            SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) AS total_entrada_mes,
-            SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) AS total_saida_mes,
-            (SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) - SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END)) AS saldo_mes
-        FROM transacoes
-        WHERE MONTH(data) = ? AND YEAR(data) = ?;
+    SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) AS total_entrada_mes,
+    SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) AS total_saida_mes,
+    (SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) - SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END)) AS saldo_mes
+FROM transacoes
+WHERE EXTRACT(MONTH FROM data) = $1 AND EXTRACT(YEAR FROM data) = $2;
+
     `;
 
     db.query(query, [mes, ano], (err, result) => {
-        if (err) return next(err);
+       // if (err) return next(err);
 
         const total_entrada_mes = parseFloat(result[0].total_entrada_mes) || 0;
         const total_saida_mes = parseFloat(result[0].total_saida_mes) || 0;
@@ -263,10 +297,7 @@ app.get('/relatorio-mensal', (req, res) => {
         });
     });
 });
-app.use(errorHandler);
+//app.use(errorHandler);
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
 });
-
-
-
