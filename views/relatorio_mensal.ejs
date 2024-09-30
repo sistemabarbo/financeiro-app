@@ -41,6 +41,22 @@
         font-size: 15px;
         cursor: pointer;
     }
+    .table-container {
+        overflow-x: auto;
+        width: 100%;
+    }
+    
+    .table-container table {
+        width: 100%;
+        min-width: 600px; /* or any minimum width you prefer */
+        border-collapse: collapse;
+    }
+    
+    .transaction-list th, .transaction-list td {
+        padding: 10px;
+        text-align: left;
+        white-space: nowrap; /* Prevent text wrapping for better readability */
+    }
 </style>
 <body>
     <form class="relatorio" action="/relatorio-mensal" method="get">
@@ -75,5 +91,43 @@
     <div> <p>Total de Saídas: R$ <%= total_saida_mes.toFixed(2) %></p></div>
     <div> <p>Saldo: R$ <%= saldo_mes.toFixed(2) %></p></div><br><br>
     <a href="/">Voltar</a>
+
+
+    <div class="table-container">
+        <table id="transaction-list" class="transaction-list hidden">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Transação</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Forma de Pagamento</th>
+                    <th>Nome do Item</th>
+                    <th>Descrição</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (transacoes && transacoes.length === 0) { %>
+                    <tr>
+                        <td colspan="8">Nenhuma transação encontrada.</td>
+                    </tr>
+                <% } else { %>
+                    <% transacoes.forEach(function(transacao) { %>
+                        <tr>
+                            <td><%= transacao.id %></td>
+                            <td><%= transacao.tipo %></td>
+                            <td>R$ <%= transacao.valor %></td>
+                            <td><%= transacao.data %></td>
+                            <td><%= transacao.forma_pagamento %></td>
+                            <td><%= transacao.nome_do_item %></td>
+                            <td><%= transacao.descricao %></td>                            
+                        </tr>
+                    <% }) %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    
 </body>
 </html>
