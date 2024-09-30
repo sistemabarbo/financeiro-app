@@ -67,7 +67,7 @@ FROM transacoes;
                 tipo,
                 forma_pagamento,
                 valor,
-                "NOME_DO_ITEM",
+                nome_do_item,
                 Descricao,
                 to_char(data, 'YYYY-MM-DD') AS data
             FROM transacoes
@@ -111,7 +111,7 @@ FROM transacoes;
                 tipo,
                 forma_pagamento,
                 valor,
-                "NOME_DO_ITEM",
+                nome_do_item,
                 Descricao,
                 to_char(data, 'YYYY-MM-DD') AS data
             FROM transacoes
@@ -121,6 +121,8 @@ FROM transacoes;
 
             db.query(queryTransacoes, (err, transacoes) => {
               //  if (err) return next(err);
+              console.log("transações", transacoes ? transacoes.rows : []),
+              console.log("transaçõesDoDia", transacoesDoDia ? transacoesDoDia.rows : []),
                 res.render('index', {
                     saldo: saldo,
                    total_entrada: total_entrada,
@@ -131,9 +133,10 @@ FROM transacoes;
                     total_saida_semana: total_saida_semana,
                     total_entrada_mes: total_entrada_mes,
                     total_saida_mes: total_saida_mes,
-                    transacoes: transacoes ? transacoes.rows : [],
-                   // transacoesDoDia: transacoesDoDia.rows, // Dados apenas do dia
+                    transacoes: transacoes ? transacoes.rows : [],                    
+                    transacoesDoDia: transacoesDoDia ? transacoesDoDia.rows : [], // Dados apenas do dia
                     getTransacaoComIcone: getTransacaoComIcone
+                    
                 });
             });
         });
@@ -185,14 +188,15 @@ app.post('/add-transacao', (req, res) => {
 
 
 app.post('/update-transacao', (req, res) => {
-    const { id, nome_do_item, tipo, valor, data, forma_pagamento, Descricao } = req.body;
+    const { id, nome_do_item, tipo, valor, data, forma_pagamento, descricao } = req.body;
     const query = `
         UPDATE transacoes
-        SET tipo = $1, valor = $2, data = $3, forma_pagamento = $4, "NOME_DO_ITEM" = $5, Descricao = $6
+        SET tipo = $1, valor = $2, data = $3, forma_pagamento = $4, nome_do_item = $5, descricao = $6
         WHERE id = $7;
     `;
-    db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item, Descricao, id], (err, result) => {
+    db.query(query, [tipo, valor, data, forma_pagamento, nome_do_item, descricao, id], (err, result) => {
        // if (err) return next(err);
+       console.log("Consulta executada com sucesso:", result);
         res.redirect('/');
     });
 });
@@ -271,32 +275,53 @@ app.get('/relatorio-mensal', (req, res) => {
     const { mes, ano } = req.query;
 
     // Consulta SQL para somar as entradas e saídas do mês especificado
-    const query = `
+    const resumoQuery = `
         SELECT
-    SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) AS total_entrada_mes,
-    SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) AS total_saida_mes,
-    (SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) - SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END)) AS saldo_mes
-FROM transacoes
-WHERE EXTRACT(MONTH FROM data) = $1 AND EXTRACT(YEAR FROM data) = $2;
-
+            SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) AS total_entrada_mes,
+            SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) AS total_saida_mes,
+            (SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) - SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END)) AS saldo_mes
+        FROM transacoes
+        WHERE EXTRACT(MONTH FROM data) = $1 AND EXTRACT(YEAR FROM data) = $2;
     `;
 
-    db.query(query, [mes, ano], (err, result) => {
-       // if (err) return next(err);
+    // Consulta SQL para obter todas as transações do mês especificado
+    const transacoesQuery = `
+        SELECT
+            id,
+            tipo,
+            forma_pagamento,
+            valor,
+            nome_do_item,
+            descricao,
+            to_char(data, 'YYYY-MM-DD') AS data
+        FROM transacoes
+        WHERE EXTRACT(MONTH FROM data) = $1 AND EXTRACT(YEAR FROM data) = $2;
+    `;
 
-        const total_entrada_mes = parseFloat(result[0].total_entrada_mes) || 0;
-        const total_saida_mes = parseFloat(result[0].total_saida_mes) || 0;
-        const saldo_mes = parseFloat(result[0].saldo_mes) || 0;
+    // Executar a consulta de resumo
+    db.query(resumoQuery, [mes, ano], (err, result) => {
+        if (err) return res.status(500).send('Erro ao obter resumo.');
 
-        res.render('relatorio_mensal', {
-            mes: mes,
-            ano: ano,
-            total_entrada_mes: total_entrada_mes,
-            total_saida_mes: total_saida_mes,
-            saldo_mes: saldo_mes
+        const total_entrada_mes = parseFloat(result.rows[0].total_entrada_mes) || 0;
+        const total_saida_mes = parseFloat(result.rows[0].total_saida_mes) || 0;
+        const saldo_mes = parseFloat(result.rows[0].saldo_mes) || 0;
+
+        // Executar a consulta de transações
+        db.query(transacoesQuery, [mes, ano], (err, transacoesResult) => {
+            if (err) return res.status(500).send('Erro ao obter transações.');
+
+            res.render('relatorio_mensal', {
+                mes: mes,
+                ano: ano,
+                total_entrada_mes: total_entrada_mes,
+                total_saida_mes: total_saida_mes,
+                saldo_mes: saldo_mes,
+                transacoes: transacoesResult.rows // Passar as transações para o template
+            });
         });
     });
 });
+
 //app.use(errorHandler);
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
