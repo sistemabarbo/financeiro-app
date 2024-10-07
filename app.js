@@ -187,6 +187,7 @@ app.post('/add-transacao', (req, res) => {
 
 
 
+
 app.post('/update-transacao', (req, res) => {
     const { id, nome_do_item, tipo, valor, data, forma_pagamento, descricao } = req.body;
     const query = `
