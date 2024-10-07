@@ -217,54 +217,51 @@ p {
     <div class="salao"><a class="meta" href="/relatorio-mensal">Relatórios</a><a href="https://barbearia-bbc.vercel.app/">SALÃO</a></div>
     <div class="container">
         <h1 class="main">ESTÉTICA AUTOMOTIVA</h1>
-        <form action="/add-transacao" method="POST">
-            <label for="nome_do_item">Nome do Item:</label>
-            <div class="radio"> <input type="radio" name="nome_do_item" id="pequeno" value="Pequeno" required
-            style="width: 25px; height: 15px; vertical-align: middle;">
-     Pequeno
-     <input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
-     style="width: 25px; height: 15px; vertical-align: middle;"  >
-     Médio
-     <input type="radio" name="nome_do_item" id="grande" value="Grande" required
-            style="width: 25px; height: 15px; vertical-align: middle;">
-     Grande<br></br></div>
-<div class="radio">
-<input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
-     style="width: 25px; height: 15px; vertical-align: middle;"  >
-     Funcionário
-<input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
-     style="width: 25px; height: 15px; vertical-align: middle;"  >
-     Estacionamento
-<input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
-     style="width: 25px; height: 15px; vertical-align: middle;"  >
-     Saída
-  <br></br></div>
- <label for="valor">Descrição:</label>
-            <input class="inputs" type="text" name="Descricao" id="Descricao" step="0.01" > <br></br>
-         
-            <label>Tipo:</label>
-            <div class="radio">
-    <input class="rad" type="radio" id="entrada" name="tipo" value="entrada">Entrada
-    <label for="entrada"></label>
-    <input class="rad" type="radio" id="saida" name="tipo" value="saida">Saída
-    <label for="saida"></label>
+<form action="/add-transacao" method="POST">
+    <label for="nome_do_item">Nome do Item:</label>
+    <div class="radio">
+        <input type="radio" name="nome_do_item" id="pequeno" value="Pequeno" required
+            style="width: 25px; height: 15px; vertical-align: middle;"> Pequeno
+        <input class="rad" type="radio" name="nome_do_item" id="medio" value="Médio" required
+            style="width: 25px; height: 15px; vertical-align: middle;"> Médio
+        <input type="radio" name="nome_do_item" id="grande" value="Grande" required
+            style="width: 25px; height: 15px; vertical-align: middle;"> Grande
+        <br></br>
     </div>
-            <label for="valor">Valor:</label>
-            <input class="inputs" type="number" name="valor" id="valor" step="0.01" required> <br></br>
-            <label for="forma_pagamento">Forma de Pagamento:</label>           
-           <div class="radio">
+    <div class="radio">
+        <input class="rad" type="radio" name="nome_do_item" id="funcionario" value="Funcionário" required
+            style="width: 25px; height: 15px; vertical-align: middle;"> Funcionário
+        <input class="rad" type="radio" name="nome_do_item" id="estacionamento" value="Estacionamento" required
+            style="width: 25px; height: 15px; vertical-align: middle;"> Estacionamento
+        <input class="rad" type="radio" name="nome_do_item" id="saida" value="Saída" required
+            style="width: 25px; height: 15px; vertical-align: middle;"> Saída
+        <br></br>
+    </div>
+    <label for="descricao">Descrição:</label>
+    <input class="inputs" type="text" name="descricao" id="descricao" step="0.01"> <br></br>
+    
+    <label>Tipo:</label>
+    <div class="radio">
+        <input class="rad" type="radio" id="entrada" name="tipo" value="entrada">Entrada
+        <label for="entrada"></label>
+        <input class="rad" type="radio" id="saida" name="tipo" value="saida">Saída
+        <label for="saida"></label>
+    </div>
+    <label for="valor">Valor:</label>
+    <input class="inputs" type="number" name="valor" id="valor" step="0.01" required> <br></br>
+    
+    <label for="forma_pagamento">Forma de Pagamento:</label>
+    <div class="radio">
+        <input class="rad" type="radio" id="pix" name="forma_pagamento" value="pix">Pix
+        <label for="pix"></label><br>
+        <input class="rad" type="radio" id="cartao" name="forma_pagamento" value="cartao">Cartão
+        <label for="cartao"></label><br>
+        <input class="rad" type="radio" id="dinheiro" name="forma_pagamento" value="dinheiro">Dinheiro
+        <label for="dinheiro"></label><br>
+    </div>
+    <button type="submit">Adicionar Transação</button>
+</form>
 
-<input class="rad" type="radio" id="pix" name="forma_pagamento" value="pix">Pix
-<label for="pix"></label><br>
-
-<input class="rad" type="radio" id="cartao" name="forma_pagamento" value="cartao">Cartão
-<label for="cartao"></label><br>
-
-<input class="rad" type="radio" id="dinheiro" name="forma_pagamento" value="dinheiro">Dinheiro
-<label for="dinheiro"></label><br>
-</div>
-            <button type="submit">Adicionar Transação</button>
-        </form>
         <h2 class="s11">Resumo Financeiro</h2>
         <div class="resumo-container">
             <div class="resumo"><p id="01" class="<%= saldo > 0 ? 'saldo-positivo' : 'saldo-negativo' %>">Saldo: R$ <%= parseFloat(saldo).toFixed(2) %></p></div>
