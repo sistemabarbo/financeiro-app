@@ -104,7 +104,9 @@ app.get('/', async (req, res) => {
 app.get('/edit-transacao/:id', (req, res) => {
     const { id } = req.params;
     const query = 'SELECT * FROM transacoes WHERE id = ?';
+    const db = await getConnection();
     db.execute(query, [id], (err, result) => {
+        await db.end();
         if (result.length > 0) {
             res.render('edit', { transacao: result[0] });
         } else {
@@ -122,7 +124,9 @@ app.post('/add-transacao', async (req, res) => {
     `;
 
     try {
+        const db = await getConnection();
         await db.execute(query, [tipo, valorNum, forma_pagamento, nome_do_item, descricao]);
+        await db.end();
         res.redirect('/');
     } catch (err) {
         console.error('Erro ao inserir a transação:', err);
@@ -139,9 +143,9 @@ app.post('/update-transacao', (req, res) => {
         SET tipo = ?, valor = ?, data = ?, forma_pagamento = ?, nome_do_item = ?, descricao = ?
         WHERE id = ?;
     `;
-  
+  const db = await getConnection();
     db.execute(query, values, (err, result) => {
-        
+        await db.end();
         if (err) {
             console.error("Erro ao atualizar a transação:", err);
             return res.status(500).json({ success: false, message: 'Erro ao atualizar a transação' });
@@ -155,7 +159,9 @@ app.post('/update-transacao', (req, res) => {
 app.post('/delete-transacao', (req, res) => {
     const { id } = req.body;
     const query = 'DELETE FROM transacoes WHERE id = ?';
+    const db = await getConnection();
     db.execute(query, [id], (err, result) => {
+        await db.end();
                res.redirect('/');
     });
 });
@@ -180,7 +186,9 @@ app.get('/', async (req, res) => {
 app.post('/fechar-caixa', async (req, res) => {
     const query = 'UPDATE transacoes SET fechado = TRUE WHERE fechado = FALSE';
     try {
+        const db = await getConnection();
         await db.execute(query);
+        await db.end();
         res.redirect('/'); // Redireciona para a página inicial após a atualização
     } catch (err) {
         console.error("Erro ao fechar caixa:", err);
@@ -201,8 +209,9 @@ app.get('/search', (req, res) => {
         FROM transacoes
         WHERE NOME_DO_ITEM LIKE ?;
     `;
-
+const db = await getConnection();
     db.execute(query, [`%${nome_do_item}%`], (err, transacoes) => {
+        await db.end();
         if (err) {
             console.error("Erro ao buscar transações:", err);
             return res.status(500).send('Erro ao buscar transações.');
@@ -234,8 +243,9 @@ app.get('/relatorio-mensal', async (req, res) => {
             FROM transacoes
             WHERE MONTH(data) = ? AND YEAR(data) = ?;
         `;
+    const db = await getConnection();
         const [resumoResult] = await db.execute(resumoQuery, [mes, ano]);      
-
+await db.end();
         const total_entrada_mes = parseFloat(resumoResult[0].total_entrada_mes) || 0;
         const total_saida_mes = parseFloat(resumoResult[0].total_saida_mes) || 0;
         const saldo_mes = parseFloat(resumoResult[0].saldo_mes) || 0;
@@ -252,8 +262,9 @@ app.get('/relatorio-mensal', async (req, res) => {
             FROM transacoes
             WHERE MONTH(data) = ? AND YEAR(data) = ?;
         `;
-       
-        const [transacoesResult] = await db.execute(transacoesQuery, [mes, ano]);             
+       const db = await getConnection();
+        const [transacoesResult] = await db.execute(transacoesQuery, [mes, ano]);    
+    await db.end();
         res.render('relatorio_mensal', {
             mes: mes,
             ano: ano,
