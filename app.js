@@ -24,15 +24,9 @@ const dbConfig = {
 };
 
 // Função para conectar ao banco de dados
-let db;
-(async () => {
-    try {
-        db = await mysql.createConnection(dbConfig);
-        console.log('Connected to the MySQL database');
-    } catch (err) {
-        console.error('Error connecting to the database:', err.stack);
-    }
-})();
+async function getConnection() {
+    return mysql.createConnection(dbConfig);
+}
 
 function getTransacaoComIcone(transacao) {
     let icon;
@@ -74,6 +68,7 @@ app.get('/', async (req, res) => {
     `;
 
     try {
+        const db = await getConnection();
         const [result] = await db.execute(query);
         const saldo = parseFloat(result[0].saldo) || 0;
         const total_entrada = parseFloat(result[0].total_entrada) || 0;
@@ -86,6 +81,7 @@ app.get('/', async (req, res) => {
         const total_saida_mes = parseFloat(result[0].total_saida_mes) || 0;
 
         const [transacoes] = await db.execute(queryTransacoes);
+        await db.end();
         res.render('index', {
             saldo,
             total_entrada,
