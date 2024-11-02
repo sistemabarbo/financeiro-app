@@ -307,7 +307,7 @@ p {
 
                             <form id="delete-form-<%= transacao.id %>" action="/delete-transacao" method="POST" style="display:inline;">
                                 <input type="hidden" name="id" value="<%= transacao.id %>">
-                                <button type="submit" class="delete">Excluir</button>
+                                <button type="submit" onclick="atualizarPaginadelete()" class="delete">Excluir</button>
                             </form>
                         </td>
                     </tr>
@@ -355,7 +355,7 @@ p {
             <label for="editDescricaoModal">Descrição:</label>
             <input type="text" name="descricao" id="editDescricaoModal"><br><br>
 
-            <button type="submit">Atualizar</button>
+            <button type="submit" onclick="atualizarPagina()">Atualizar</button>
         </form>
         </div>
     </div> 
@@ -445,7 +445,18 @@ window.onclick = function(event) {
     }
 }
 
-        
+    function atualizarPagina() {
+    // Aguarda um breve momento para garantir que o formulário seja processado
+    setTimeout(function() {
+        location.reload(); // Recarrega a página
+    }, 1000); // 1000 milissegundos (1 segundo) de atraso, ajuste conforme necessário
+}
+function atualizarPaginadelete() {
+    // Aguarda um breve momento para garantir que o formulário seja processado
+    setTimeout(function() {
+        location.reload(); // Recarrega a página
+    }, 1000); // 1000 milissegundos (1 segundo) de atraso, ajuste conforme necessário
+}    
     </script>
 </body>
 </html>
