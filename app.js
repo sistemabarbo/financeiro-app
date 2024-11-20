@@ -151,54 +151,84 @@ app.post('/fechar-caixa', async (req, res) => {
 });
 
 app.get('/relatorio-mensal', async (req, res) => {
-    const { mes, ano } = req.query;
+    
+        const { mes, ano } = req.query;
 
-    if (!mes || !ano) {
-        return res.render('relatorio_mensal', {
-            mes: 1,
-            ano: 2024,
-            total_entrada_mes: 0,
-            total_saida_mes: 0,
-            saldo_mes: 0,
-            transacoes: []
-        });
-    }
+        // Validar mês e ano
+        if (!mes || !ano || isNaN(mes) || isNaN(ano)) {
+            return res.render('relatorio_mensal', {
+                mes: 1,
+                ano: 2024,
+                total_entrada_mes: 0,
+                total_saida_mes: 0,
+                saldo_mes: 0,
+                carros_pequenos: 0,
+                carros_medios: 0,
+                carros_grandes: 0,
+                estacionamento: 0,
+                transacoes: []
+            });
+        }
 
-    const resumoQuery = `
-        SELECT
-            SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) AS total_entrada_mes,
-            SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) AS total_saida_mes,
-            (SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) - SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END)) AS saldo_mes
-        FROM transacoes
-        WHERE MONTH(data) = ? AND YEAR(data) = ?;
-    `;
+        // Consulta de resumo (entrada, saída e saldo)
+        const resumoQuery = `
+            SELECT
+                SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) AS total_entrada_mes,
+                SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) AS total_saida_mes
+            FROM transacoes
+            WHERE MONTH(data) = ? AND YEAR(data) = ?;
+        `;
 
-    const transacoesQuery = `
-        SELECT
-            id,
-            tipo,
-            forma_pagamento,
-            valor,
-            nome_do_item,
-            descricao,
-            DATE_FORMAT(data, '%Y-%m-%d') AS data
-        FROM transacoes
-        WHERE MONTH(data) = ? AND YEAR(data) = ?;
-    `;
+        // Consulta de transações
+        const transacoesQuery = `
+            SELECT
+                id,
+                tipo,
+                forma_pagamento,
+                valor,
+                nome_do_item,
+                descricao,
+                DATE_FORMAT(data, '%Y-%m-%d') AS data
+            FROM transacoes
+            WHERE MONTH(data) = ? AND YEAR(data) = ?;
+        `;
 
-        const resumoResult = await queryDatabase(resumoQuery, [mes, ano]);
+        // Consulta de contagem de carros e estacionamento
+        const carrosQuery = `
+            SELECT
+                SUM(CASE WHEN nome_do_item = 'pequeno' THEN 1 ELSE 0 END) AS carros_pequenos,
+                SUM(CASE WHEN nome_do_item = 'medio' THEN 1 ELSE 0 END) AS carros_medios,
+                SUM(CASE WHEN nome_do_item = 'grande' THEN 1 ELSE 0 END) AS carros_grandes,
+                SUM(CASE WHEN nome_do_item = 'estacionamento' THEN 1 ELSE 0 END) AS estacionamento
+            FROM transacoes
+            WHERE tipo = 'entrada' AND MONTH(data) = ? AND YEAR(data) = ?;
+        `;
+
+        // Executar consultas
+        const [resumoResult] = await queryDatabase(resumoQuery, [mes, ano]);
         const transacoesResult = await queryDatabase(transacoesQuery, [mes, ano]);
+        const [carrosResult] = await queryDatabase(carrosQuery, [mes, ano]);
 
-        const total_entrada_mes = parseFloat(resumoResult[0]?.total_entrada_mes) || 0;
-        const total_saida_mes = parseFloat(resumoResult[0]?.total_saida_mes) || 0;
+        // Processar resultados
+        const total_entrada_mes = parseFloat(resumoResult?.total_entrada_mes || 0);
+        const total_saida_mes = parseFloat(resumoResult?.total_saida_mes || 0);
         const saldo_mes = total_entrada_mes - total_saida_mes;
+        const carros_pequenos = carrosResult?.carros_pequenos || 0;
+        const carros_medios = carrosResult?.carros_medios || 0;
+        const carros_grandes = carrosResult?.carros_grandes || 0;
+        const estacionamento = carrosResult?.estacionamento || 0;
 
+        // Renderizar a página com os dados
         res.render('relatorio_mensal', {
             mes,
             ano,
             total_entrada_mes,
             total_saida_mes,
             saldo_mes,
+            carros_pequenos,
+            carros_medios,
+            carros_grandes,
+            estacionamento,
             transacoes: transacoesResult
         });    
 });
